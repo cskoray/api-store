@@ -1,0 +1,44 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: api-store
+spec:
+  selector:
+    app: api-store
+  ports:
+    - protocol: TCP
+      port: 8084
+      targetPort: 8084
+  type: NodePort
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-store
+spec:
+  selector:
+    matchLabels:
+      app: api-store
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: api-store
+    spec:
+      containers:
+        - name: api-store
+          image: api-store:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8084
+          env:
+          - name: DATASOURCE_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: db-secret
+                key: username
+          - name: DATASOURCE_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: db-secret
+                key: password
